@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.text.TextFlow?>
+
+<BorderPane prefHeight="503.0" prefWidth="621.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.relatoriotetoarduino.RelatorioController">
+   <padding>
+      <Insets top="20.0" />
+   </padding>
+
+   <top>
+      <TextFlow disable="true" prefHeight="49.0" prefWidth="525.0" textAlignment="CENTER" BorderPane.alignment="CENTER">
+         <children>
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Formulário de Economia" textAlignment="CENTER">
+               <font>
+                  <Font name="Serif Regular" size="27.0" />
+               </font>
+            </Text>
+         </children>
+      </TextFlow>
+   </top>
+   <center>
+      <VBox prefHeight="258.0" prefWidth="525.0" BorderPane.alignment="CENTER">
+         <children>
+            <HBox>
+               <ComboBox fx:id="cbSelEnergia" prefHeight="25.0" prefWidth="627.0" promptText="Selecione o tipo de energia">
+                  <items>
+                     <FXCollections fx:factory="observableArrayList">
+                        <String fx:value="Luz" />
+                        <String fx:value="Ventilador" />
+                        <String fx:value="Arcondicionado" />
+                        <String fx:value="Agua" />
+                     </FXCollections>
+                  </items>
+                  <cursor>
+                     <Cursor fx:constant="HAND" />
+                  </cursor>
+               </ComboBox>
+            </HBox>
+            <HBox alignment="CENTER" prefHeight="86.0" prefWidth="604.0">
+               <Label fx:id="lbManha" contentDisplay="CENTER" prefHeight="25.0" prefWidth="60.0" text="Manhã:" textAlignment="CENTER">
+                  <font>
+                     <Font size="16.0" />
+                  </font>
+                  <HBox.margin>
+                     <Insets top="40.0" />
+                  </HBox.margin>
+               </Label>
+               <TextField fx:id="tfManha" promptText="0">
+                  <HBox.margin>
+                     <Insets top="40.0" />
+                  </HBox.margin>
+               </TextField>
+               <Label fx:id="lbKW1" prefHeight="25.0" prefWidth="41.0" text="KW/h">
+                  <HBox.margin>
+                     <Insets top="40.0" />
+                  </HBox.margin>
+                  <font>
+                     <Font size="16.0" />
+                  </font>
+               </Label>
+            </HBox>
+            <HBox alignment="CENTER" prefHeight="93.0" prefWidth="604.0">
+               <Label fx:id="lbTarde" contentDisplay="CENTER" layoutX="10.0" layoutY="35.0" prefHeight="10.0" prefWidth="60.0" text="Tarde:" textAlignment="CENTER">
+                  <font>
+                     <Font size="16.0" />
+                  </font>
+                  <HBox.margin>
+                     <Insets top="40.0" />
+                  </HBox.margin>
+               </Label>
+               <TextField fx:id="tfTarde" promptText="0">
+                  <HBox.margin>
+                     <Insets top="40.0" />
+                  </HBox.margin>
+               </TextField>
+               <Label fx:id="lbKW2" text="KW/h">
+                  <HBox.margin>
+                     <Insets top="40.0" />
+                  </HBox.margin>
+                  <font>
+                     <Font size="16.0" />
+                  </font>
+               </Label>
+            </HBox>
+            <HBox alignment="CENTER" prefHeight="102.0" prefWidth="604.0">
+               <Label fx:id="lbNoite" contentDisplay="CENTER" layoutX="10.0" layoutY="92.0" prefHeight="1.0" prefWidth="60.0" text="Noite:" textAlignment="CENTER">
+                  <font>
+                     <Font size="16.0" />
+                  </font>
+                  <HBox.margin>
+                     <Insets top="40.0" />
+                  </HBox.margin>
+               </Label>
+               <TextField fx:id="tfNoite" promptText="0">
+                  <HBox.margin>
+                     <Insets top="40.0" />
+                  </HBox.margin>
+               </TextField>
+               <Label fx:id="lbKW3" text="KW/h">
+                  <HBox.margin>
+                     <Insets top="40.0" />
+                  </HBox.margin>
+                  <font>
+                     <Font size="16.0" />
+                  </font>
+               </Label>
+            </HBox>
+            <HBox alignment="CENTER" visible="false">
+               <Label fx:id="lbLitros" contentDisplay="CENTER" prefHeight="25.0" prefWidth="60.0" text="Litros:" textAlignment="CENTER">
+                  <font>
+                     <Font size="16.0" />
+                  </font>
+                  <HBox.margin>
+                     <Insets top="40.0" />
+                  </HBox.margin>
+               </Label>
+               <TextField fx:id="tfLitros" promptText="0">
+                  <HBox.margin>
+                     <Insets top="40.0" />
+                  </HBox.margin>
+               </TextField>
+               <Label prefHeight="25.0" prefWidth="41.0" text="Litros">
+                  <HBox.margin>
+                     <Insets top="40.0" />
+                  </HBox.margin>
+                  <font>
+                     <Font size="16.0" />
+                  </font>
+               </Label>
+            </HBox>
+         </children>
+      </VBox>
+   </center>
+   <bottom>
+      <HBox alignment="CENTER" prefHeight="129.0" prefWidth="753.0" BorderPane.alignment="CENTER">
+         <children>
+            <Button mnemonicParsing="false" onAction="#btGravar" prefHeight="20.0" prefWidth="90.0" style="-fx-background-color: #DC143C;" text="Gravar" textAlignment="CENTER" textFill="WHITE">
+               <HBox.margin>
+                  <Insets bottom="2.0" right="30.0" />
+               </HBox.margin>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </Button>
+            <Button layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#btExibir" prefHeight="20.0" prefWidth="120.0" style="-fx-background-color: #00FA9A;" text="Exibir Relatório" textAlignment="CENTER">
+               <HBox.margin>
+                  <Insets bottom="2.0" />
+               </HBox.margin>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </Button>
+         </children>
+      </HBox>
+   </bottom>
+</BorderPane>
