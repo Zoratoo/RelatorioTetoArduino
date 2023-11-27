@@ -48,9 +48,14 @@
          <children>
             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
                <children>
-                  <Button mnemonicParsing="false" onAction="#btSemanal" text="Semanal">
+                  <Button mnemonicParsing="false" onAction="#btDiario" text="Diário">
                      <HBox.margin>
                         <Insets right="15.0" />
+                     </HBox.margin>
+                  </Button>
+                  <Button mnemonicParsing="false" onAction="#btSemanal" text="Semanal">
+                     <HBox.margin>
+                        <Insets left="15.0" right="15.0" />
                      </HBox.margin>
                   </Button>
                   <Button mnemonicParsing="false" onAction="#btMensal" text="Mensal">

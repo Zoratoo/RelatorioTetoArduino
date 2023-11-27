@@ -2,11 +2,10 @@ package com.example.relatoriotetoarduino;
 
 import com.example.relatoriotetoarduino.Utils.Conexao;
 import com.example.relatoriotetoarduino.Utils.DB;
+import com.example.relatoriotetoarduino.Utils.dispositivo;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.chart.BarChart;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
@@ -14,37 +13,18 @@ import javafx.stage.Stage;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.CategoryAxis;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
+
+import java.awt.List;
 import java.net.URL;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Map;
-import java.util.ResourceBundle;
-import javafx.embed.swing.SwingNode;
-import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.scene.layout.VBox;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.data.category.CategoryDataset;
-import org.jfree.data.category.DefaultCategoryDataset;
-import org.jfree.chart.labels.ItemLabelAnchor;
-import org.jfree.chart.labels.ItemLabelPosition;
-import org.jfree.chart.labels.ItemLabelAnchor;
-import org.jfree.chart.labels.ItemLabelPosition;
-import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
-import org.jfree.chart.ui.TextAnchor;
+import java.util.*;
 
-import javax.swing.*;
+import javafx.embed.swing.SwingNode;
+
 import java.awt.*;
-import java.net.URL;
 import java.util.ResourceBundle;
 
 public class GraficoViewController implements Initializable {
@@ -54,6 +34,7 @@ public class GraficoViewController implements Initializable {
     public Label lbTotal;
     public Label lbValorTotal;
     private boolean modoSemanal = true;
+    private boolean modoDiario = true;
     @FXML
     private VBox containerPane;
     String selectedEnergia;
@@ -207,55 +188,168 @@ public class GraficoViewController implements Initializable {
     @FXML //muda a média para mensal
     private void btMensal(ActionEvent event) {
         modoSemanal = false;
+        modoDiario = false;
         atualizarLabels();
     }
 
     @FXML //muda a média para semanal
     private void btSemanal(ActionEvent event) {
         modoSemanal = true;
+        modoDiario = false;
         atualizarLabels();
     }
     //atualiza as labels usando o cálculo de energia e a energia selecionada
     private void atualizarLabels() {
         selectedEnergia = cbGrafico.getValue();
-        int id=1;
+        float cont = 0;
         double litros = 0,manha=0,tarde=0,noite=0;
-        if("Agua".equals(selectedEnergia)) {
-            while (id < 5){
-                litros += obterValorColuna("litros_dia", id);
-                id++;
-            }
-            if (modoSemanal) {
-                lbMedia.setText("Média Semanal:");
-                lbValorMedia.setText(String.format("%.2f litros",litros/7));
-                lbTotal.setText("Total Economizado:");
-                lbValorTotal.setText(String.format("%.2f litros",litros));
-            } else {
-                lbMedia.setText("Média Mensal:");
-                lbValorMedia.setText(String.format("%.2f litros",litros/30));
-                lbTotal.setText("Total Economizado:");
-                lbValorTotal.setText(String.format("%.2f litros",litros));
-            }
-        } else {
-            while(id<5){
-            manha += obterValorColuna("manha", id);
-            tarde += obterValorColuna("tarde", id);
-            noite += obterValorColuna("noite", id);
-            id++;
-            }
-            if (modoSemanal) {
-                lbMedia.setText("Média Semanal:");
-                lbValorMedia.setText(String.format("%.2f KW/h", (manha + tarde + noite) / 7));
-                lbTotal.setText("Total Economizado:");
-                lbValorTotal.setText(String.format("%.2f KW/h", manha + tarde + noite));
-            } else {
-                lbMedia.setText("Média Mensal:");
-                lbValorMedia.setText(String.format("%.2f KW/h", (manha + tarde + noite) / 30));
-                lbTotal.setText("Total Economizado:");
-                lbValorTotal.setText(String.format("%.2f KW/h", manha + tarde + noite));
+
+        if("Luz".equals(selectedEnergia)) {
+            if (DB.conectar()) {
+                String sql = "SELECT data_registro, manha, tarde, noite FROM luz";
+                try (PreparedStatement preparedStatement = Conexao.connect.prepareStatement(sql);
+                     ResultSet resultSet = preparedStatement.executeQuery()) {
+                    while (resultSet.next()) {
+                        manha += resultSet.getFloat("manha");
+                        tarde += resultSet.getFloat("tarde");
+                        noite += resultSet.getFloat("noite");
+                        cont++;
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    System.out.println("SQL Exception: " + e.getMessage());
+                    throw new RuntimeException(e);
+                }
+                if (modoSemanal) {
+                    lbMedia.setText("Média Semanal:");
+                    lbValorMedia.setText(String.format("%.2f KW/h", (manha + tarde + noite) / cont));
+                    lbTotal.setText("Total Economizado:");
+                    lbValorTotal.setText(String.format("%.2f KW/h", (manha + tarde + noite)));
+
+                }
+                else if(modoDiario){
+                    lbMedia.setText("Média Mensal:");
+                    lbValorMedia.setText(String.format("%.2f KW/h", (manha + tarde + noite) / (cont*7)));
+                    lbTotal.setText("Total Economizado:");
+                    lbValorTotal.setText(String.format("%.2f KW/h", (manha + tarde + noite)));
+                }
+                else {
+                    lbMedia.setText("Média Mensal:");
+                    lbValorMedia.setText(String.format("%.2f KW/h", (manha + tarde + noite) / (cont / 4)));
+                    lbTotal.setText("Total Economizado:");
+                    lbValorTotal.setText(String.format("%.2f KW/h", (manha + tarde + noite)));
+                }
             }
         }
-    }
+        else if ("Arcondicionado".equals(selectedEnergia)){
+            if (DB.conectar()) {
+                String sql = "SELECT data_registro, manha, tarde, noite FROM arcondicionado";
+                try (PreparedStatement preparedStatement = Conexao.connect.prepareStatement(sql);
+                     ResultSet resultSet = preparedStatement.executeQuery()) {
+                    while (resultSet.next()) {
+                        manha += resultSet.getFloat("manha");
+                        tarde += resultSet.getFloat("tarde");
+                        noite += resultSet.getFloat("noite");
+                        cont++;
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    System.out.println("SQL Exception: " + e.getMessage());
+                    throw new RuntimeException(e);
+                }
+                if (modoSemanal) {
+                    lbMedia.setText("Média Semanal:");
+                    lbValorMedia.setText(String.format("%.2f KW/h", (manha + tarde + noite) / cont));
+                    lbTotal.setText("Total Economizado:");
+                    lbValorTotal.setText(String.format("%.2f KW/h", (manha + tarde + noite)));
+
+                }
+                else if(modoDiario){
+                    lbMedia.setText("Média Mensal:");
+                    lbValorMedia.setText(String.format("%.2f KW/h", (manha + tarde + noite) / (cont*7)));
+                    lbTotal.setText("Total Economizado:");
+                    lbValorTotal.setText(String.format("%.2f KW/h", (manha + tarde + noite)));
+                }
+                else {
+                    lbMedia.setText("Média Mensal:");
+                    lbValorMedia.setText(String.format("%.2f KW/h", (manha + tarde + noite) / (cont / 4)));
+                    lbTotal.setText("Total Economizado:");
+                    lbValorTotal.setText(String.format("%.2f KW/h", (manha + tarde + noite)));
+                }
+            }
+        }
+        else if ("Ventilador".equals(selectedEnergia)){
+            if (DB.conectar()) {
+                String sql = "SELECT data_registro, manha, tarde, noite FROM ventilador";
+                try (PreparedStatement preparedStatement = Conexao.connect.prepareStatement(sql);
+                     ResultSet resultSet = preparedStatement.executeQuery()) {
+                    while (resultSet.next()) {
+                        manha += resultSet.getFloat("manha");
+                        tarde += resultSet.getFloat("tarde");
+                        noite += resultSet.getFloat("noite");
+                        cont++;
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    System.out.println("SQL Exception: " + e.getMessage());
+                    throw new RuntimeException(e);
+                }
+                if (modoSemanal) {
+                    lbMedia.setText("Média Semanal:");
+                    lbValorMedia.setText(String.format("%.2f KW/h", (manha + tarde + noite) / cont));
+                    lbTotal.setText("Total Economizado:");
+                    lbValorTotal.setText(String.format("%.2f KW/h", (manha + tarde + noite)));
+                }
+                else if(modoDiario){
+                    lbMedia.setText("Média Mensal:");
+                    lbValorMedia.setText(String.format("%.2f KW/h", (manha + tarde + noite) / (cont*7)));
+                    lbTotal.setText("Total Economizado:");
+                    lbValorTotal.setText(String.format("%.2f KW/h", (manha + tarde + noite)));
+                }
+                else {
+                    lbMedia.setText("Média Mensal:");
+                    lbValorMedia.setText(String.format("%.2f KW/h", (manha + tarde + noite) / (cont / 4)));
+                    lbTotal.setText("Total Economizado:");
+                    lbValorTotal.setText(String.format("%.2f KW/h", (manha + tarde + noite)));
+                }
+            }
+        }
+        else {
+            if (DB.conectar()) {
+                String sql = "SELECT data_registro, litros_dia FROM agua";
+                try (PreparedStatement preparedStatement = Conexao.connect.prepareStatement(sql);
+                     ResultSet resultSet = preparedStatement.executeQuery()) {
+                    while (resultSet.next()) {
+                        litros += resultSet.getFloat("litros_dia");
+                        cont++;
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    System.out.println("SQL Exception: " + e.getMessage());
+                    throw new RuntimeException(e);
+                }
+            }
+            if (modoSemanal) {
+                lbMedia.setText("Média Semanal:");
+                lbValorMedia.setText(String.format("%.2f litros",litros/cont));
+                lbTotal.setText("Total Economizado:");
+                lbValorTotal.setText(String.format("%.2f litros",litros));
+            }
+            else if(modoDiario){
+                lbMedia.setText("Média Mensal:");
+                lbValorMedia.setText(String.format("%.2f litros",litros/(cont*7)));
+                lbTotal.setText("Total Economizado:");
+                lbValorTotal.setText(String.format("%.2f litros",litros));
+            }
+            else {
+                lbMedia.setText("Média Mensal:");
+                lbValorMedia.setText(String.format("%.2f litros",litros/(cont/4)));
+                lbTotal.setText("Total Economizado:");
+                lbValorTotal.setText(String.format("%.2f litros",litros));
+            }
+        }
+   }
+
     //determina a coluna e obtém os valores dela
     private double obterValorColuna(String coluna,int id) {
         double valor = 0.0;  // Valor padrão, pode ser ajustado conforme necessário
@@ -288,5 +382,11 @@ public class GraficoViewController implements Initializable {
         }
 
         return valor;
+    }
+
+    public void btDiario(ActionEvent actionEvent) {
+        modoSemanal = false;
+        modoDiario = true;
+        atualizarLabels();
     }
 }
